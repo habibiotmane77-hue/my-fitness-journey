@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0d1210">
+<title>Séance 01 — Full Body Restart</title>
+<style>
+:root{--bg:#0d1210;--card:#151d19;--card2:#1b2620;--line:#26352c;--txt:#e9f1eb;--mut:#92a699;--g:#3ddc84;--gd:#1c6b43;--warn:#f0b44c;--bad:#ef6b5e}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--txt);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding:0 14px 150px;max-width:640px;margin:0 auto}
+h1{font-size:1.7rem;line-height:1.15;letter-spacing:-.02em;font-weight:800}
+h2{font-size:1.1rem;font-weight:700}
+.sub{color:var(--mut);margin-top:4px}
+header{padding:22px 0 12px}
+.top{position:sticky;top:0;z-index:5;background:var(--bg);padding:10px 0;border-bottom:1px solid var(--line)}
+.bar{height:12px;background:var(--card2);border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--g);transition:width .25s}
+.stats{display:flex;justify-content:space-between;font-size:.85rem;color:var(--mut);margin-top:6px}
+.stats b{color:var(--txt)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-top:14px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.clock{font-variant-numeric:tabular-nums;font-size:2rem;font-weight:800;color:var(--g)}
+button{font:inherit;font-weight:700;min-height:48px;padding:0 18px;border-radius:12px;border:1px solid var(--line);background:var(--card2);color:var(--txt);cursor:pointer}
+button:active{transform:scale(.97)}
+button.p{background:var(--g);color:#06210f;border-color:var(--g)}
+button.sm{min-height:40px;padding:0 12px;font-size:.85rem}
+:focus-visible{outline:3px solid var(--g);outline-offset:2px}
+.safe{border-color:#6a5524;background:#1d1a10}
+.safe h2{color:var(--warn)}
+.safe ul{margin:10px 0 0 20px}.safe li{margin:4px 0}
+.ex-h{display:flex;gap:14px;align-items:center}
+.pic{flex:none;width:64px;height:64px;border-radius:14px;background:var(--card2);border:1px solid var(--line);display:grid;place-items:center;font-size:2rem}
+.meta{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 4px}
+.tag{background:var(--card2);border:1px solid var(--line);border-radius:99px;padding:3px 12px;font-size:.85rem}
+.tag.g{color:var(--g);border-color:var(--gd)}
+.mus{color:var(--mut);font-size:.9rem}
+.set{display:flex;align-items:center;gap:14px;min-height:56px;padding:0 14px;margin-top:8px;border-radius:12px;background:var(--card2);border:1px solid var(--line);cursor:pointer}
+.set input{width:28px;height:28px;accent-color:var(--g);flex:none}
+.set.on{border-color:var(--g);background:#14301f}
+.set.on span{text-decoration:line-through;color:var(--mut)}
+.fields{display:grid;grid-template-columns:1fr;gap:10px;margin-top:12px}
+label.f{display:block;font-size:.85rem;color:var(--mut)}
+input[type=number],input[type=text],textarea{width:100%;min-height:48px;margin-top:4px;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--txt);font:inherit}
+textarea{resize:vertical;min-height:72px}
+details{margin-top:12px;border-top:1px solid var(--line);padding-top:10px}
+summary{cursor:pointer;font-weight:700;min-height:44px;display:flex;align-items:center;color:var(--g)}
+details h3{font-size:.95rem;margin:12px 0 4px}
+details ol,details ul{margin-left:20px}details li{margin:3px 0}
+.rest{position:fixed;left:0;right:0;bottom:0;background:#101713;border-top:1px solid var(--gd);padding:10px 14px calc(10px + env(safe-area-inset-bottom));z-index:9}
+.rest .in{max-width:640px;margin:auto}
+.rest .row{justify-content:space-between;flex-wrap:nowrap}
+.rest .clock{font-size:1.9rem}.rest.end .clock{color:var(--warn)}
+.rl{font-size:.8rem;color:var(--mut)}
+.opts{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.opts label{flex:1 1 90px}
+.opts input{position:absolute;opacity:0}
+.opts span{display:flex;justify-content:center;align-items:center;min-height:48px;border-radius:12px;border:1px solid var(--line);background:var(--card2);padding:0 10px;cursor:pointer;text-align:center}
+.opts input:checked+span{background:var(--g);color:#06210f;border-color:var(--g);font-weight:700}
+.opts input:focus-visible+span{outline:3px solid var(--g);outline-offset:2px}
+.q{margin-top:16px;font-weight:700}
+#sum{white-space:pre-wrap}
+#sum h3{margin:12px 0 4px;font-size:1rem;color:var(--g)}
+#sum p,#sum li{color:var(--txt)}#sum ul{margin-left:20px}
+.done{color:var(--g);font-weight:700}
+.foot{margin-top:22px;text-align:center}
+.foot button{color:var(--bad)}
+.figwrap{position:relative;margin-top:12px;background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:8px}
+.figwrap svg{width:100%;height:auto;display:block}
+.figwrap button{position:absolute;right:8px;bottom:8px}
+.tip{margin-top:12px;padding:10px 12px;border-radius:12px;background:#14301f;border:1px solid var(--gd)}
+</style>
+</head>
+<body>
+<header>
+  <h1>Séance 01 — Full Body Restart</h1>
+  <p class="sub">Séance de familiarisation et de technique. Durée visée : 45 à 60 minutes.</p>
+</header>
+
+<div class="top">
+  <div class="bar" role="progressbar" aria-label="Progression de la séance" aria-valuemin="0" aria-valuemax="100" id="pbar"><i id="pfill"></i></div>
+  <div class="stats"><span><b id="pct">0 %</b> terminé</span><span><b id="cSets">0</b>/<b id="tSets">0</b> séries</span><span><b id="cEx">0</b>/<b id="tEx">0</b> exercices</span></div>
+</div>
+
+<section class="card">
+  <div class="row" style="justify-content:space-between">
+    <div><div class="rl">Durée de la séance</div><div class="clock" id="wClock">00:00</div></div>
+    <div class="row"><button class="p" id="wToggle">Démarrer</button></div>
+  </div>
+</section>
+
+<section class="card safe" aria-labelledby="sf">
+  <h2 id="sf">Consignes de sécurité</h2>
+  <ul>
+    <li>Commence avec des charges légères.</li>
+    <li>La bonne technique passe avant tout.</li>
+    <li>Garde 3 à 4 répétitions en réserve.</li>
+    <li>Ne va jamais jusqu’à l’échec musculaire.</li>
+    <li>Ne compare pas ta force à celle des autres.</li>
+    <li>Arrête-toi en cas de douleur vive, de vertige ou de gêne inhabituelle.</li>
+    <li>Demande de l’aide au personnel pour régler une machine.</li>
+  </ul>
+</section>
+
+<main id="list"></main>
+
+<section class="card" id="finishCard">
+  <h2>Fin de séance</h2>
+  <p class="sub">Quand tu as terminé, valide la séance puis remplis le bilan.</p>
+  <div class="row" style="margin-top:12px"><button class="p" id="finish" style="flex:1">Marquer la séance comme terminée</button></div>
+  <p class="done" id="finMsg" style="margin-top:10px"></p>
+</section>
+
+<section class="card" id="report" aria-labelledby="rp">
+  <h2 id="rp">Bilan de séance</h2>
+  <div id="form"></div>
+  <div class="row" style="margin-top:16px"><button class="p" id="gen" style="flex:1">Générer le résumé</button></div>
+</section>
+
+<section class="card" id="sumCard" hidden aria-live="polite">
+  <h2>Résumé</h2>
+  <div id="sum"></div>
+</section>
+
+<div class="foot"><button id="reset">Réinitialiser la séance</button></div>
+
+<div class="rest" id="rest">
+  <div class="in">
+    <div class="row">
+      <div><div class="rl" id="rLabel">Repos</div><div class="clock" id="rClock">01:30</div></div>
+      <div class="row" style="gap:8px">
+        <button class="p" id="rStart">Démarrer</button>
+        <button id="rPause">Pause</button>
+        <button id="rReset">Reset</button>
+      </div>
+    </div>
+    <div class="opts" style="margin-top:8px;gap:6px">
+      <button class="sm" data-r="60">60 s</button><button class="sm" data-r="90">90 s</button><button class="sm" data-r="120">120 s</button>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+const KEY = "fitness-seance-01";
+const EX = [
+ {id:"e1",name:"Développé couché à la machine",icon:"🏋️",sets:2,min:2,reps:"12 répétitions",rest:90,muscles:"Pectoraux, deltoïdes antérieurs, triceps",
+  fig:{A:[80,47,80,64,80,112,85,97,112,77,122,112,126,148],B:[80,47,80,64,80,112,113,66,147,68,122,112,126,148],eq:'<path d="M68 40V122M62 122H136"/>'},
+  steps:["3dl l-korsi bach l-poignées ykounu f wst s-sder.","Dhrek w ras ltsqo m3a l-dossier, rjlin mseto7in 3la l-ard.","Dfa3 l-poignées l-quddam bla ma tqfel l-coudes.","Rjj3 b hdou, f 2-3 tawani."],
+  breath:"Expire (zfer) mnin kddfa3, inspire (chhem) mnin kdkhel.",mistakes:["Dhrek kay-tl3 mn l-dossier.","Verrouillage dyal l-coudes f lkhir.","L-poids kayrj3 b zrba."],safety:["Khtar poids khfif: khlli 3-4 reps f l-réserve."],
+  tip:"Pro tip : squeeze l-pecs 1 seconde f lkhir, w 3 tawani f nzoul."},
+ {id:"e2",name:"Tirage vertical (lat pulldown)",icon:"🧗",sets:2,min:2,reps:"12 répétitions",rest:90,muscles:"Grand dorsal, haut du dos, biceps",
+  fig:{A:[92,57,90,72,86,118,100,38,110,6,124,114,128,152],B:[92,57,90,72,86,118,88,104,112,82,124,114,128,152],cable:[125,3],eq:'<path d="M66 124H140M100 104H128"/><circle cx="125" cy="3" r="5"/>'},
+  steps:["7ett fkhdik tht l-coussins w mseq l-barre b 3rd chwiya akbar mn l-ktaf.","Sder khrej, buste mayl chwiya l-lwra.","Jbed l-barre l-3la s-sder w jm3 l-omoplates.","Rj3 l-barre l-foq b hdou, m3a controle."],
+  breath:"Expire mnin kt-jbed, inspire mnin kt-rj3.",mistakes:["Jbed l-barre mn wra l-3nq.","Balancement bzaf l-wra w l-quddam.","Kat-jbed ghir b l-biceps."],safety:["Matkhellich l-barre tfllet : rj3ha l-foq b controle."],
+  tip:"Pro tip : imagine rak kat-jbed l-coudes l-jib dyalk, machi l-yeddin."},
+ {id:"e3",name:"Presse à cuisses",icon:"🦵",sets:2,min:2,reps:"12 répétitions",rest:120,muscles:"Quadriceps, fessiers, ischio-jambiers",
+  fig:{A:[38,66,45,80,62,118,58,100,72,112,62,78,102,78],B:[38,66,45,80,62,118,58,100,72,112,87,87,120,64],plate:[6,12,12],dot:false,eq:'<path d="M34 72L62 124H78M70 126L140 56"/>'},
+  steps:["Qa3d, dhrek w l-bassin mlsqin m3a l-korsi.","Rjlin f 3rd l-ktaf, f wst l-plateforme.","Nzel b hdou 7ta r-rkab ywslu l 90°.","Dfa3 b kamel l-qdm bla ma tqfel r-rkab."],
+  breath:"Inspire mnin knzel, expire mnin kdfa3.",mistakes:["L-bassin kay-tl3 mn l-korsi.","R-rkab kay-dkhlu l-dakhel.","Tqfel r-rkab b zzaf f lkhir."],safety:["Bda b poids khfif, w matzidch poids bach t-impressioni chi had."],
+  tip:"Pro tip : dfa3 b l-ka3b dyal rjlk, w khlli r-rkab m3a l-orteils."},
+ {id:"e4",name:"Rowing assis à la poulie",icon:"🚣",sets:2,min:2,reps:"12 répétitions",rest:90,muscles:"Dos, rhomboïdes, biceps",
+  fig:{A:[72,55,70,72,70,118,104,82,138,94,106,110,140,116],B:[72,55,70,72,70,118,62,102,96,104,106,110,140,116],cable:[232,98],eq:'<path d="M50 126H150M148 98V126"/>'},
+  steps:["Qa3d w rjlin mdoubin chwiya, 7ett l-qdm 3la l-plateforme.","Dhrek m9ewwem, s-sder khrej, l-bras mmdoudin.","Jbed l-poignée l-l-kerch (ventre) w jm3 l-omoplates.","Rj3 l-bras mmdoudin b hdou, bla ma t9wes dhrek."],
+  breath:"Expire mnin kt-jbed, inspire mnin kt-rj3.",mistakes:["T9wes dhrek mnin kt-rj3.","Balancement dyal l-buste.","Tlla3 l-ktaf l-l-wdnin."],safety:["Khlli dhrek neutre (m9ewwem) f kol série."],
+  tip:"Pro tip : bda l-mouvement b l-omoplates, men b3d l-bras."},
+ {id:"e5",name:"Développé épaules à la machine",icon:"🙌",sets:2,min:1,optional:"2e série facultative",reps:"12 répétitions",rest:90,muscles:"Épaules, triceps",
+  fig:{A:[80,57,80,72,80,118,92,102,100,72,120,114,124,152],B:[80,57,80,72,80,118,86,40,96,10,120,114,124,152],eq:'<path d="M66 45V122M60 122H136"/>'},
+  steps:["3dl l-korsi bach l-poignées ykounu f 3la l-ktaf.","Dhrek mlsq m3a l-dossier, l-abdos mchedouda.","Dfa3 l-foq bla ma tqfel l-coudes.","Nzel b hdou l-3la l-ktaf."],
+  breath:"Expire mnin kdfa3, inspire mnin knzel.",mistakes:["Tqews dhrek (cambrure) bzaf.","Tlla3 l-ktaf l-l-wdnin.","Poids tqil bzaf f reprise."],safety:["Wqef ila 7ssiti b ouj3 7ad f l-ktaf."],
+  tip:"Pro tip : expire fort at the top, abs tight — no arching!"},
+ {id:"e6",name:"Gainage (planche)",icon:"🧘",sets:2,min:2,reps:"15 à 20 secondes",rest:60,noWeight:true,muscles:"Gaine abdominale et stabilisateurs",
+  fig:{still:true,dot:false,A:[52,90,68,98,130,114,68,132,96,132,160,122,194,130],B:[52,90,68,98,130,114,68,132,96,132,160,122,194,130],eq:'<path d="M24 138H224"/>'},
+  steps:["Tkka 3la l-avant-bras, l-coudes tht l-ktaf.","Jism kamel f khat mstqim, men r-ras l-l-ka3b.","Chedd l-abdos w l-fessiers.","7bess 15-20 tanya, men b3d rtah."],
+  breath:"Tnfes b hdou w b ntizam, matchedch nefsek.",mistakes:["L-bassin kay-nzel wla kay-tl3.","T7bess nefsek.","T3eyyet l-quddam : khlli r-ras f nafs l-khat."],safety:["Ila l-dhr dyal l-asfel bda ytkhaf, wqef w 7ett r-rkab 3la l-ard."],
+  tip:"Pro tip : imagine rak ghadi tdfa3 l-ard b l-avant-bras."}
+];
+const WARM = {id:"w0",name:"Échauffement : marche sur tapis",icon:"🚶",text:"5 à 7 minutes, allure tranquille."};
+const REPORT = [
+ {k:"done",q:"As-tu terminé la séance ?",o:["Oui","Partiellement","Non"]},
+ {k:"diff",q:"Difficulté de la séance",o:["Facile","Modérée","Difficile"]},
+ {k:"energy",q:"Niveau d’énergie",o:["Bon","Moyen","Faible"]},
+ {k:"feel",q:"Ressenti général",o:["Motivé","Normal","Fatigué"]}
+];
+
+let S = {sets:{},weights:{},notes:{},wElapsed:0,wRunning:false,wStart:0,finished:false,rep:{},repNotes:""};
+try { Object.assign(S, JSON.parse(localStorage.getItem(KEY)) || {}); } catch(e){}
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){} };
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmt = s => { s = Math.max(0, Math.round(s)); return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0"); };
+
+/* ---------- rendu ---------- */
+function setRow(id, label, on){
+  return `<label class="set${on?" on":""}"><input type="checkbox" data-s="${id}" ${on?"checked":""}><span>${label}</span></label>`;
+}
+function render(){
+  let h = `<section class="card"><div class="ex-h"><div class="pic" aria-hidden="true">${WARM.icon}</div><div><h2>${WARM.name}</h2><p class="mus">${WARM.text}</p></div></div>${setRow(WARM.id,"Échauffement terminé",!!S.sets[WARM.id])}</section>`;
+  EX.forEach((e,i) => {
+    let sets = "";
+    for(let n=0;n<e.sets;n++){
+      const id = e.id+"_"+n, opt = n>=e.min ? " (facultative)" : "";
+      sets += setRow(id, `Série ${n+1}${opt} — terminée`, !!S.sets[id]);
+    }
+    h += `<section class="card" id="${e.id}">
+      <div class="ex-h"><div class="pic" aria-hidden="true">${e.icon}</div><div><h2>Exercice ${i+1} : ${e.name}</h2><p class="mus">${e.muscles}</p></div></div>
+      ${figBlock(e)}
+      <div class="meta"><span class="tag g">${e.sets===2&&e.min===1?"1 à 2 séries":e.sets+" séries"}</span><span class="tag g">${e.reps}</span><span class="tag">Repos ${e.rest} s</span></div>
+      ${sets}
+      <div class="fields">
+        ${e.noWeight?"":`<label class="f">Charge utilisée (kg, facultatif)<input type="number" inputmode="decimal" min="0" step="0.5" data-w="${e.id}" value="${esc(S.weights[e.id]||"")}"></label>`}
+        <label class="f">Notes (facultatif)<textarea data-n="${e.id}" placeholder="Réglage du siège, sensations…">${esc(S.notes[e.id]||"")}</textarea></label>
+      </div>
+      <details><summary>Chof kifach tdirha · Détails</summary>
+        <h3>Kifach tdirha · Exécution</h3><ol>${e.steps.map(s=>`<li>${s}</li>`).join("")}</ol>
+        <h3>Nefes · Breathing</h3><p>${e.breath}</p>
+        <h3>Ghalatat · Erreurs à éviter</h3><ul>${e.mistakes.map(s=>`<li>${s}</li>`).join("")}</ul>
+        <h3>Salama · Sécurité</h3><ul>${e.safety.map(s=>`<li>${s}</li>`).join("")}</ul><p class="tip">💡 ${e.tip}</p>
+      </details></section>`;
+  });
+  $("list").innerHTML = h;
+  $("form").innerHTML = REPORT.map(r => `<p class="q" id="q_${r.k}">${r.q}</p><div class="opts" role="radiogroup" aria-labelledby="q_${r.k}">${r.o.map(o=>`<label><input type="radio" name="${r.k}" value="${o}" ${S.rep[r.k]===o?"checked":""}><span>${o}</span></label>`).join("")}</div>`).join("")
+    + `<label class="f q" style="font-weight:700;color:var(--txt)">Notes supplémentaires<textarea id="repNotes" placeholder="Tes observations sur la séance…">${esc(S.repNotes||"")}</textarea></label>`;
+  $("tEx").textContent = EX.length;
+  progress();
+  $("finMsg").textContent = S.finished ? "Séance validée. Bravo pour cette reprise !" : "";
+}
+
+/* ---------- progression ---------- */
+function exDone(e){ let c=0; for(let n=0;n<e.sets;n++) if(S.sets[e.id+"_"+n]) c++; return c; }
+function progress(){
+  let req = 1, got = S.sets[WARM.id] ? 1 : 0, setsDone = got, ex = 0;
+  EX.forEach(e => { const c = exDone(e); req += e.min; got += Math.min(c,e.min); setsDone += c; if(c>=e.min) ex++; });
+  const p = Math.round(got/req*100);
+  $("pfill").style.width = p+"%"; $("pbar").setAttribute("aria-valuenow",p);
+  $("pct").textContent = p+" %"; $("cSets").textContent = setsDone; $("tSets").textContent = req;
+  $("cEx").textContent = ex;
+  return {p,setsDone,ex};
+}
+
+/* ---------- minuteur de séance ---------- */
+const wEl = () => S.wElapsed + (S.wRunning ? (Date.now()-S.wStart)/1000 : 0);
+function wUi(){ $("wClock").textContent = fmt(wEl()); $("wToggle").textContent = S.wRunning ? "Pause" : (S.wElapsed>0 ? "Reprendre" : "Démarrer"); }
+function wToggle(){
+  if(S.wRunning){ S.wElapsed = wEl(); S.wRunning = false; }
+  else { S.wRunning = true; S.wStart = Date.now(); }
+  save(); wUi();
+}
+setInterval(wUi, 500);
+
+/* ---------- minuteur de repos ---------- */
+const R = {total:90,left:90,end:0,iv:null};
+function rUi(){ $("rClock").textContent = fmt(R.left); $("rest").classList.toggle("end", R.left<=0 && R.total>0 && !R.iv && R.done); }
+function rTick(){
+  R.left = Math.max(0, Math.ceil((R.end-Date.now())/1000));
+  if(R.left<=0){ clearInterval(R.iv); R.iv=null; R.done=true; $("rLabel").textContent="Repos terminé — c’est reparti !"; if(navigator.vibrate) navigator.vibrate([250,100,250]); }
+  rUi();
+}
+function rSet(sec,label){ clearInterval(R.iv); R.iv=null; R.done=false; R.total=R.left=sec; $("rLabel").textContent=label||"Repos"; rUi(); }
+function rStart(){ if(R.iv) return; if(R.left<=0){ R.left=R.total; } R.done=false; R.end=Date.now()+R.left*1000; R.iv=setInterval(rTick,250); }
+function rPause(){ if(R.iv){ rTick(); clearInterval(R.iv); R.iv=null; } }
+function rReset(){ rSet(R.total, $("rLabel").textContent.startsWith("Repos terminé")?"Repos":$("rLabel").textContent); }
+
+/* ---------- événements ---------- */
+document.addEventListener("change", ev => {
+  const t = ev.target;
+  if(t.dataset.s){
+    S.sets[t.dataset.s] = t.checked;
+    t.closest(".set").classList.toggle("on", t.checked);
+    if(t.checked){
+      if(!S.wRunning && S.wElapsed===0) wToggle();
+      const e = EX.find(x => t.dataset.s.startsWith(x.id+"_"));
+      if(e){ rSet(e.rest, "Repos : "+e.name); rStart(); }
+    }
+    progress();
+  } else if(t.dataset.w){ S.weights[t.dataset.w] = t.value; }
+  else if(t.dataset.n){ S.notes[t.dataset.n] = t.value; }
+  else if(t.type==="radio"){ S.rep[t.name] = t.value; }
+  save();
+});
+document.addEventListener("input", ev => {
+  const t = ev.target;
+  if(t.dataset.w){ S.weights[t.dataset.w]=t.value; save(); }
+  else if(t.dataset.n){ S.notes[t.dataset.n]=t.value; save(); }
+  else if(t.id==="repNotes"){ S.repNotes=t.value; save(); }
+});
+$("wToggle").onclick = wToggle;
+$("rStart").onclick = rStart; $("rPause").onclick = rPause; $("rReset").onclick = rReset;
+document.querySelectorAll("[data-r]").forEach(b => b.onclick = () => rSet(+b.dataset.r, "Repos"));
+$("finish").onclick = () => {
+  if(S.wRunning){ S.wElapsed = wEl(); S.wRunning = false; }
+  S.finished = true; save(); wUi();
+  $("finMsg").textContent = "Séance validée. Bravo pour cette reprise !";
+  $("report").scrollIntoView();
+};
+$("gen").onclick = () => {
+  const {p,setsDone,ex} = progress();
+  const done = EX.filter(e => exDone(e)>=e.min).map(e => e.name);
+  const wts = EX.filter(e => !e.noWeight && S.weights[e.id]).map(e => `<li>${e.name} : ${esc(S.weights[e.id])} kg</li>`).join("") || "<li>Aucune charge notée.</li>";
+  const notes = EX.filter(e => S.notes[e.id]).map(e => `<li><b>${e.name}</b> : ${esc(S.notes[e.id])}</li>`).join("");
+  $("sum").innerHTML =
+    `<h3>Avancement</h3><p>${p} % de la séance, ${setsDone} série(s) validée(s), ${ex}/${EX.length} exercices.</p>`+
+    `<h3>Exercices terminés</h3>${done.length?`<ul>${done.map(d=>`<li>${d}</li>`).join("")}</ul>`:"<p>Aucun pour l’instant.</p>"}`+
+    `<h3>Charges utilisées</h3><ul>${wts}</ul>`+
+    `<h3>Durée totale</h3><p>${fmt(wEl())}</p>`+
+    `<h3>Bilan</h3><ul>${REPORT.map(r=>`<li>${r.q} : <b>${S.rep[r.k]||"non renseigné"}</b></li>`).join("")}</ul>`+
+    `<h3>Observations</h3>${notes?`<ul>${notes}</ul>`:""}<p>${esc(S.repNotes||"Aucune note supplémentaire.")}</p>`;
+  $("sumCard").hidden = false; $("sumCard").scrollIntoView();
+};
+$("reset").onclick = () => {
+  if(!confirm("Effacer toute la progression, les charges et les notes ?")) return;
+  S = {sets:{},weights:{},notes:{},wElapsed:0,wRunning:false,wStart:0,finished:false,rep:{},repNotes:""};
+  save(); $("sumCard").hidden = true; rSet(90,"Repos"); render(); wUi();
+};
+
+/* ---------- illustrations animées ---------- */
+const BONES = [[1,2],[1,3],[3,4],[2,5],[5,6]];
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const playing = {};
+const on = id => playing[id] === undefined ? !reduce : playing[id];
+const n1 = v => v.toFixed(1);
+function figDyn(e,t){
+  const f = e.fig, p = f.A.map((a,i) => a + (f.B[i]-a)*t), P = i => [p[2*i], p[2*i+1]];
+  let s = "";
+  if(f.cable) s += `<line x1="${n1(p[8])}" y1="${n1(p[9])}" x2="${f.cable[0]}" y2="${f.cable[1]}" stroke="var(--mut)" stroke-width="2"/>`;
+  if(f.plate){ const [x,y] = P(f.plate[0]); s += `<line x1="${n1(x-f.plate[1])}" y1="${n1(y-f.plate[2])}" x2="${n1(x+f.plate[1])}" y2="${n1(y+f.plate[2])}" stroke="var(--txt)" stroke-width="5" stroke-linecap="round"/>`; }
+  BONES.forEach(([i,j]) => { const [a,b] = P(i), [c,d] = P(j); s += `<line x1="${n1(a)}" y1="${n1(b)}" x2="${n1(c)}" y2="${n1(d)}" stroke="var(--g)" stroke-width="7" stroke-linecap="round"/>`; });
+  s += `<circle cx="${n1(p[0])}" cy="${n1(p[1])}" r="10" fill="var(--g)"/>`;
+  if(f.dot !== false) s += `<circle cx="${n1(p[8])}" cy="${n1(p[9])}" r="6" fill="var(--txt)"/>`;
+  return s;
+}
+function figBlock(e){
+  return `<div class="figwrap"><svg viewBox="0 0 240 160" data-fig="${e.id}" role="img" aria-label="Démonstration du mouvement : ${e.name}"><g fill="none" stroke="var(--mut)" stroke-width="3" stroke-linecap="round">${e.fig.eq}</g><g class="dyn">${figDyn(e,0)}</g></svg>${e.fig.still?"":`<button class="sm" data-play="${e.id}">${on(e.id)?"Pause":"Lancer l’animation"}</button>`}</div>`;
+}
+function loop(ts){
+  document.querySelectorAll("svg[data-fig]").forEach(svg => {
+    const id = svg.dataset.fig, e = EX.find(x => x.id===id);
+    if(e.fig.still || !on(id)) return;
+    svg.querySelector(".dyn").innerHTML = figDyn(e, (1-Math.cos(ts/700))/2);
+  });
+  requestAnimationFrame(loop);
+}
+document.addEventListener("click", ev => {
+  const b = ev.target.closest("[data-play]"); if(!b) return;
+  playing[b.dataset.play] = !on(b.dataset.play);
+  b.textContent = on(b.dataset.play) ? "Pause" : "Lancer l’animation";
+});
+requestAnimationFrame(loop);
+
+render(); wUi(); rUi();
+</script>
+</body>
+</html>
